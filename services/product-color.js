@@ -2,8 +2,8 @@
  * @Author: Tran Van Nhut <nhutdev>
  * @Date:   2017-02-10T09:36:21+07:00
  * @Email:  tranvannhut4495@gmail.com
-* @Last modified by:   nhutdev
-* @Last modified time: 2017-02-23T10:55:15+07:00
+ * @Last modified by:   nhutdev
+ * @Last modified time: 2017-03-18T12:34:38+07:00
  */
 
 
@@ -33,6 +33,16 @@ class ProductColorService extends nodePg.services.Base {
    */
   get exception() {
     return exceptionHelper;
+  }
+
+  getManyByProduct(productId, result) {
+    let opts = {};
+
+    return this.getAllCondition({
+      where: ['product_id = $1'],
+      args: [productId]
+    }, opts, result);
+
   }
 
 }

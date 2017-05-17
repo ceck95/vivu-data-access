@@ -1,21 +1,20 @@
 /**
  * @Author: Tran Van Nhut <nhutdev>
- * @Date:   2017-02-10T09:36:21+07:00
+ * @Date:   2017-03-20T16:18:21+07:00
  * @Email:  tranvannhut4495@gmail.com
-* @Last modified by:   nhutdev
-* @Last modified time: 2017-02-21T12:26:36+07:00
+ * @Last modified by:   nhutdev
+ * @Last modified time: 2017-03-21T23:54:13+07:00
  */
-
 
 
 'use strict';
 
 const nodePg = require('node-pg');
 const exceptionHelper = require('../helpers/exception');
-const CountryAdapter = require('../adapters/country');
+const QuoteAdapter = require('../adapters/quote');
 
 
-class CountryService extends nodePg.services.Base {
+class QuoteService extends nodePg.services.Base {
 
   /**
    * Adapter class for current service
@@ -23,7 +22,7 @@ class CountryService extends nodePg.services.Base {
    * @return {Object} Adapter object
    */
   get adapterClass() {
-    return CountryAdapter;
+    return QuoteAdapter;
   }
 
   /**
@@ -35,15 +34,13 @@ class CountryService extends nodePg.services.Base {
     return exceptionHelper;
   }
 
-  getOneByCountryCode(countryCode, result) {
-
+  getOneByCustomer(customerId, result) {
     return this.getOne({
-      where: 'country_code = $1',
-      args: [countryCode]
+      where: ['customer_id = $1'],
+      args: [customerId]
     }, result);
-
   }
 
 }
 
-module.exports = CountryService;
+module.exports = QuoteService;

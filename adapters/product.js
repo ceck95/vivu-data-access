@@ -2,8 +2,8 @@
  * @Author: Tran Van Nhut <nhutdev>
  * @Date:   2017-02-13T11:21:35+07:00
  * @Email:  tranvannhut4495@gmail.com
-* @Last modified by:   nhutdev
-* @Last modified time: 2017-03-03T16:11:42+07:00
+ * @Last modified by:   nhutdev
+ * @Last modified time: 2017-03-27T16:02:19+07:00
  */
 
 'use strict';
@@ -14,6 +14,8 @@ const vivuCommon = require('vivu-common-api');
 const Product = vivuCommon.models.Product;
 const Category = vivuCommon.models.Category;
 const CategoryGroup = vivuCommon.models.CategoryGroup;
+const ProductColor = vivuCommon.models.ProductColor;
+const helpers = require('node-helpers');
 
 class ProductAdapter extends nodePg.adapters.Adapter {
 
@@ -51,11 +53,11 @@ class ProductAdapter extends nodePg.adapters.Adapter {
     }
 
     if (params.categoryId) {
-      where.push(`${tableAlias}.category_id IN (${params.categoryId})`);
+      where.push(`${tableAliasCategory}.id IN (${params.categoryId})`);
     }
 
     if (params.categoryGroupId) {
-      where.push(`${tableAlias}.category_group_id IN (${params.categoryGroupId})`);
+      where.push(`${tableAliasCategoryGroup}.id IN (${params.categoryGroupId})`);
     }
 
     if (params.urlKeyCategory) {
@@ -67,6 +69,21 @@ class ProductAdapter extends nodePg.adapters.Adapter {
       where.push(`${tableAliasCategoryGroup}.url_key = $${paramCount++}`);
       args.push(params.urlKeyCategoryGroup);
     }
+
+    if (params.price ? params.price.length > 0 : false) {
+      where.push(`${tableAlias}.base_price BETWEEN ${params.price[0]} AND ${params.price[1]} `);
+    }
+
+    if (params.search) {
+      let toStringSplit = (str) => {
+        let s = str.split(' ').join(`','`);
+        return `'${s}'`;
+      };
+      where.push(`search && ARRAY[${toStringSplit(params.search)}] OR search_full && ARRAY[${toStringSplit(params.search)}]`);
+    }
+
+    where.push(`${tableAlias}.status = $${paramCount++}`);
+    args.push(helpers.Const.status.ACTIVE);
 
     return {
       where: where,
@@ -87,6 +104,7 @@ class ProductAdapter extends nodePg.adapters.Adapter {
       joins = [],
       category = new Category(),
       categoryGroup = new CategoryGroup(),
+      productColor = new ProductColor(),
       tableAlias = model.tableAlias;
 
     includes.push({
@@ -106,11 +124,21 @@ class ProductAdapter extends nodePg.adapters.Adapter {
       }
 
       if (opts.includes.indexOf(categoryGroup.tableAlias) > -1) {
-        let jCondition = ' LEFT JOIN ' + categoryGroup.fullTableName + ' ' + categoryGroup.tableAlias + ' ON ' + categoryGroup.tableAlias + '.id = ' + tableAlias + '.category_group_id ';
+        let jCondition = ' LEFT JOIN ' + categoryGroup.fullTableName + ' ' + categoryGroup.tableAlias + ' ON ' + categoryGroup.tableAlias + '.id = ' + category.tableAlias + '.category_group_id ';
         joins.push(jCondition);
         includes.push({
           alias: categoryGroup.tableAlias,
           model: categoryGroup
+        });
+      }
+
+
+      if (opts.includes.indexOf(productColor.tableAlias) > -1) {
+        let jCondition = ' LEFT JOIN ' + productColor.fullTableName + ' ' + productColor.tableAlias + ' ON ' + productColor.tableAlias + '.product_id = ' + tableAlias + '.id ';
+        joins.push(jCondition);
+        includes.push({
+          alias: productColor.tableAlias,
+          model: productColor
         });
       }
 

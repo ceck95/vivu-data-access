@@ -13,6 +13,9 @@
 const nodePg = require('node-pg');
 const exceptionHelper = require('../helpers/exception');
 const CustomerAdapter = require('../adapters/customer');
+const helpers = require('node-helpers');
+const vivuCommon = require('vivu-common-api');
+const CustomerAddress = vivuCommon.models.CustomerAddress;
 
 
 class CustomerService extends nodePg.services.Base {
@@ -45,6 +48,15 @@ class CustomerService extends nodePg.services.Base {
 
   changePassword(id, password, result) {
     return this.responseDefault(this.adapter.changePassword(id, password), {}, result);
+  }
+
+  getOneRelationCustomize(id, opts, result) {
+    let tableAlias = (new this.adapter.modelClass()).tableAlias,
+      tableAliasCustomerAddress = (new CustomerAddress()).tableAlias;
+    return this.getOneRelation({
+      where: [`${tableAlias}.id = $1`, 'is_default = $2', `${tableAliasCustomerAddress}.status = $3`],
+      args: [id, true, helpers.Const.status.ACTIVE]
+    }, opts, result);
   }
 
 }

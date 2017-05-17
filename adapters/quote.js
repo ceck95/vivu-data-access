@@ -1,32 +1,31 @@
-
 /**
  * @Author: Tran Van Nhut <nhutdev>
  * @Date:   2017-02-13T11:21:35+07:00
  * @Email:  tranvannhut4495@gmail.com
-* @Last modified by:   nhutdev
-* @Last modified time: 2017-02-21T12:21:36+07:00
+ * @Last modified by:   nhutdev
+ * @Last modified time: 2017-03-20T16:18:00+07:00
  */
 
 'use strict';
 
 const nodePg = require('node-pg');
 const logger = require('../helpers/logger');
-const Country = require('vivu-common-api').models.Country;
+const Quote = require('vivu-common-api').models.Quote;
 
-class CountryAdapter extends nodePg.adapters.Adapter {
+class QuoteAdapter extends nodePg.adapters.Adapter {
 
   constructor() {
     super();
     this.log = logger.child({
       'namespace': 'postgres',
-      'adapter': 'CountryAdapter'
+      'adapter': 'QuoteAdapter'
     });
   }
 
   get modelClass() {
-    return Country;
+    return Quote;
   }
 
 }
 
-module.exports = CountryAdapter;
+module.exports = QuoteAdapter;
